@@ -2,13 +2,10 @@ import Fluent
 import Vapor
 
 func routes(_ app: Application) throws {
-    app.get { req async throws in
-        try await req.view.render("index", ["title": "Hello Vapor!"])
+    app.post("clients") { req async throws -> Client in
+        let clientData = try req.content.decode(Client.self)
+        let newClient = Client(username: clientData.username, email: clientData.email)
+        try await newClient.save(on: req.db)
+        return newClient
     }
-
-    app.get("hello") { req async -> String in
-        "Hello, world!"
-    }
-
-    try app.register(collection: TodoController())
 }
