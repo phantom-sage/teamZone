@@ -5,8 +5,8 @@ struct CreateClient: AsyncMigration {
     func prepare(on database: Database) async throws {
         try await database.schema("clients")
             .id()
-            .field("username", .string)
-            .field("email", .string)
+            .field("username", .string, .required)
+            .field("email", .string, .required)
             .create()
     }
 
