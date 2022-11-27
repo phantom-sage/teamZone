@@ -21,3 +21,19 @@ final class Client: Model, Content {
         self.email = email
     }
 }
+
+extension Client {
+    static func isUsernameUnique(_ value: String, on database: Database) async throws -> Bool {
+        guard let _ = try await Client.query(on: database).filter(\.$username == value).first() else {
+            return false
+        }
+        return true
+    }
+
+    static func isEmailAddressUnique(_ value: String, on database: Database) async throws -> Bool {
+        guard let _ = try await Client.query(on: database).filter(\.$email == value).first() else {
+            return false
+        }
+        return true
+    }
+}

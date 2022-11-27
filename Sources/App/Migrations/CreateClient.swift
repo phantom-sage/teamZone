@@ -7,6 +7,8 @@ struct CreateClient: AsyncMigration {
             .id()
             .field("username", .string, .required)
             .field("email", .string, .required)
+            .unique(on: "username")
+            .unique(on: "email")
             .create()
     }
 
