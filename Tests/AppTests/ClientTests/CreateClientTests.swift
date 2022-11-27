@@ -22,7 +22,7 @@ final class CreateClientTests: XCTestCase {
     }
 
     func testCreateClientWithValidData_clientCreated() async throws {
-        try await app.test(.POST, "clients", beforeRequest: { req in
+        try await app.test(.POST, "/api/clients", beforeRequest: { req in
             try req.content.encode(["username": "Client username", "email": "email@email.com"])
         }, afterResponse: { res async throws in
             XCTAssertEqual(res.status, .ok)
@@ -35,7 +35,7 @@ final class CreateClientTests: XCTestCase {
     }
 
     func testCreateClientWithoutUsernameProvided_clientNotCreated_validationError() async throws {
-        try await app.test(.POST, "clients", beforeRequest: { req in
+        try await app.test(.POST, "/api/clients", beforeRequest: { req in
             try req.content.encode(["email": "email@email.com"])
         }, afterResponse: { res async throws in
             let response = try res.content.decode(ErrorFromCreateClientApi.self)
@@ -48,7 +48,7 @@ final class CreateClientTests: XCTestCase {
     }
 
     func testCreateClientWithoutEmailAddressProvided_clientNotCreated_validationError() async throws {
-        try await app.test(.POST, "clients", beforeRequest: { req in
+        try await app.test(.POST, "/api/clients", beforeRequest: { req in
             try req.content.encode(["username": "Client username"])
         }, afterResponse: { res async throws in
             let response = try res.content.decode(ErrorFromCreateClientApi.self)
@@ -61,7 +61,7 @@ final class CreateClientTests: XCTestCase {
     }
 
     func testCreateClientWithInvalidEmailAddress_clientNotCreated_validationError() async throws {
-        try await app.test(.POST, "clients", beforeRequest: { req in
+        try await app.test(.POST, "/api/clients", beforeRequest: { req in
             try req.content.encode(["username": "Client username", "email": "invalid email address"])
         }, afterResponse: { res async throws in
             XCTAssertEqual(res.status, .badRequest)
@@ -73,7 +73,7 @@ final class CreateClientTests: XCTestCase {
     }
 
     func testCreateClientWithTooLongUsername_clientNotCreated_validationError() async throws {
-        try await app.test(.POST, "clients", beforeRequest: { req in
+        try await app.test(.POST, "/api/clients", beforeRequest: { req in
             try req.content.encode(["username": String(repeating: "too long username", count: 5000), "email": "email@email.com"])
         }, afterResponse: { res async throws in
             XCTAssertEqual(res.status, .badRequest)
@@ -85,7 +85,7 @@ final class CreateClientTests: XCTestCase {
     }
 
     func testCreateClientWithTooLongEmailAddress_clientNotCreated_validationError() async throws {
-        try await app.test(.POST, "clients", beforeRequest: { req in
+        try await app.test(.POST, "/api/clients", beforeRequest: { req in
             try req.content.encode(["username": "Client username", "email": "email@email\(String(repeating: "email", count: 500)).com"])
         }, afterResponse: { res async throws in
             let response = try res.content.decode(ErrorFromCreateClientApi.self)
@@ -98,7 +98,7 @@ final class CreateClientTests: XCTestCase {
 
 
     func testCreateClientWithTooShortUsername_clientNotCreated_validationError() async throws {
-        try await app.test(.POST, "clients", beforeRequest: { req in
+        try await app.test(.POST, "/api/clients", beforeRequest: { req in
             try req.content.encode(["username": "C", "email": "email@email.com"])
         }, afterResponse: { res async throws in
             let response = try res.content.decode(ErrorFromCreateClientApi.self)
@@ -115,7 +115,7 @@ final class CreateClientTests: XCTestCase {
         let clientsCount = try await Client.query(on: app.db).count()
         XCTAssertEqual(clientsCount, 1)
 
-        try await app.test(.POST, "clients", beforeRequest: { req in
+        try await app.test(.POST, "/api/clients", beforeRequest: { req in
             try req.content.encode(["username": "username", "email": "newemail@email.com"])
         }, afterResponse: { res async throws in
             XCTAssertEqual(res.status, .badRequest)
@@ -135,7 +135,7 @@ final class CreateClientTests: XCTestCase {
         let clientsCount = try await Client.query(on: app.db).count()
         XCTAssertEqual(clientsCount, 1)
 
-        try await app.test(.POST, "clients", beforeRequest: { req in
+        try await app.test(.POST, "/api/clients", beforeRequest: { req in
             try req.content.encode(["username": "Client username", "email": "email@email.com"])
         }, afterResponse: { res async throws in
             XCTAssertEqual(res.status, .badRequest)
