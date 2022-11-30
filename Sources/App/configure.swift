@@ -17,10 +17,11 @@ public func configure(_ app: Application) throws {
     ), as: .psql)
 
     app.migrations.add(CreateClient())
+    app.migrations.add(CreateManager())
 
     app.views.use(.leaf)
 
-    
+    app.passwords.use(.bcrypt(cost: 8))    
 
     // register routes
     try routes(app)
