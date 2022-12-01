@@ -157,4 +157,14 @@ final class UpdateHrTests: XCTestCase {
             XCTAssertEqual(1, hrCount)
         })
     }
+
+    func testUpdateHr_notFoundInDatabase_notFoundError() async throws {
+        let randomId = faker.number.randomInt()
+        try await app.test(.PUT, "/api/hrs/\(randomId)", afterResponse: { res async throws in
+            XCTAssertEqual(res.status, .notFound)
+
+            let hrCount = try await Hr.query(on: app.db).count()
+            XCTAssertEqual(0, hrCount)
+        })
+    }
 }
