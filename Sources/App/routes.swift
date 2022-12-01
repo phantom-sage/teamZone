@@ -10,4 +10,7 @@ func routes(_ app: Application) throws {
 
     let hrsController = HrsController()
     try app.register(collection: hrsController)
+
+    let projectscontroller = ProjectsController()
+    try app.register(collection: projectscontroller)
 }
