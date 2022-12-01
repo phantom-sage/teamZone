@@ -18,6 +18,7 @@ public func configure(_ app: Application) throws {
 
     app.migrations.add(CreateClient())
     app.migrations.add(CreateManager())
+    app.migrations.add(CreateHr())
 
     app.views.use(.leaf)
 

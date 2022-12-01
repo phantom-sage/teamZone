@@ -7,4 +7,7 @@ func routes(_ app: Application) throws {
 
     let managersController = ManagersController()
     try app.register(collection: managersController)
+
+    let hrsController = HrsController()
+    try app.register(collection: hrsController)
 }
