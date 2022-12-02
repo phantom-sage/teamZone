@@ -2,6 +2,8 @@ import Fluent
 import FluentPostgresDriver
 import Leaf
 import Vapor
+import GraphQL
+import GraphQLKit
 
 // configures your application
 public func configure(_ app: Application) throws {
@@ -23,8 +25,10 @@ public func configure(_ app: Application) throws {
 
     app.views.use(.leaf)
 
-    app.passwords.use(.bcrypt(cost: 8))    
+    app.passwords.use(.bcrypt(cost: 8))
 
     // register routes
     try routes(app)
+
+    app.register(graphQLSchema: projectSchema, withResolver:  ProjectResolver())
 }

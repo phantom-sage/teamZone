@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/fluent.git",
       "state" : {
-        "revision" : "26c446002f03c5ab34b20d86873014ef3d92d0da",
-        "version" : "4.5.0"
+        "revision" : "2da106f46b093885f77fa03e3c719ab5bb8cfab4",
+        "version" : "4.6.0"
       }
     },
     {
@@ -59,7 +59,34 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/fluent-postgres-driver.git",
       "state" : {
-        "revision" : "a8b2839ea86c44a35c17f66eb0885f9e5b51a531",
+        "revision" : "4808c539f08306ae6002f6106813a9350baa141b",
+        "version" : "2.5.0"
+      }
+    },
+    {
+      "identity" : "graphiti",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/GraphQLSwift/Graphiti.git",
+      "state" : {
+        "revision" : "af903a243862c6427935677b91f67df0c21f2a71",
+        "version" : "0.26.0"
+      }
+    },
+    {
+      "identity" : "graphql",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/GraphQLSwift/GraphQL.git",
+      "state" : {
+        "revision" : "ad4a71514c604de040a53d6ef37b2c18435e825e",
+        "version" : "2.4.3"
+      }
+    },
+    {
+      "identity" : "graphql-kit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/alexsteinerde/graphql-kit.git",
+      "state" : {
+        "revision" : "73485f3ae2d200431ad6cd48e998eabc66214b64",
         "version" : "2.4.0"
       }
     },
@@ -68,8 +95,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/leaf.git",
       "state" : {
-        "revision" : "79fbcfb7dd2eb0f01e01b3fb7ee2763df75ef3f6",
-        "version" : "4.2.3"
+        "revision" : "6fe0e843c6599f5189e45c7b08739ebc5c410c3b",
+        "version" : "4.2.4"
       }
     },
     {
@@ -95,8 +122,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/postgres-kit.git",
       "state" : {
-        "revision" : "35deea5c28a7d402f3280d81dee37bed5c56b9fe",
-        "version" : "2.8.3"
+        "revision" : "1174d9bc57798aba7a99451e5380c0eb0fb796d8",
+        "version" : "2.9.0"
       }
     },
     {
