@@ -13,4 +13,7 @@ func routes(_ app: Application) throws {
 
     let projectscontroller = ProjectsController()
     try app.register(collection: projectscontroller)
+
+    let teamMembersController = TeamMembersController()
+    try app.register(collection: teamMembersController)
 }
