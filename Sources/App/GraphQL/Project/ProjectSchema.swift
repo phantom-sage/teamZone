@@ -5,7 +5,6 @@ import Vapor
 let projectSchema = try! Schema<ProjectResolver, Request> {
     Scalar(UUID.self)
 
-    //Scalar(Date.self)
     DateScalar(formatter: ISO8601DateFormatter())
 
     Type(Project.self) {
@@ -16,5 +15,8 @@ let projectSchema = try! Schema<ProjectResolver, Request> {
 
     Query {
         Field("projects", at: ProjectResolver.getAllProjects)
+        Field("project", at: ProjectResolver.getProject) {
+            Argument("id", at: \.id)
+        }
     }
 }
