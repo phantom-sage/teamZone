@@ -16,4 +16,7 @@ func routes(_ app: Application) throws {
 
     let teamMembersController = TeamMembersController()
     try app.register(collection: teamMembersController)
+
+    let tasksController = TasksController()
+    try app.register(collection: tasksController)
 }
