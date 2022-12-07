@@ -18,10 +18,11 @@ final class Manager: Model, Content {
 
     init() { }
 
-    init(id: UUID? = nil, name: String, email: String) {
+    init(id: UUID? = nil, name: String, email: String, password: String) {
         self.id = id
         self.name = name
         self.email = email
+        self.password = password
     }
 }
 
@@ -31,13 +32,5 @@ extension Manager {
             return false
         }
         return true
-    }
-}
-
-extension Manager: Validatable {
-    static func validations(_ validations: inout Validations) {
-        validations.add("email", as: String.self, is: .email && !.empty, required: true)
-        validations.add("name", as: String.self, is: .ascii && !.empty && .count(3...100), required: true)
-        validations.add("password", as: String.self, is: .alphanumeric && !.empty && .count(8...32), required: true)
     }
 }

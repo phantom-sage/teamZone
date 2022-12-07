@@ -27,7 +27,7 @@ final class CreateManagerTests: XCTestCase {
             ])
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
-            let managerFromApi = try res.content.decode(Manager.self)
+            let managerFromApi = try res.content.decode(ManagerDataFromCreateHandler.self)
             guard let managerFromDatabase = try await Manager.query(on: app.db).first() else {
                 debugPrint("Manager not created in database")
                 return
@@ -46,7 +46,7 @@ final class CreateManagerTests: XCTestCase {
             ])
         }, afterResponse: { res async throws in
             XCTAssertEqual(res.status, .ok)
-            let managerFromApi = try res.content.decode(Manager.self)
+            let managerFromApi = try res.content.decode(ManagerDataFromCreateHandler.self)
             guard let managerFromDatabase = try await Manager.query(on: app.db).first() else {
                 debugPrint("Manager not saved to database")
                 return
@@ -131,4 +131,48 @@ final class CreateManagerTests: XCTestCase {
             XCTAssertEqual(res.status, .ok)
         })
     }
+
+    // name greater than 100 characters
+    func testCreateManager_nameIsLessThanThreeCharacters_notSavedToDatabase() async throws {
+        try await app.test(.POST, "/api/managers", beforeRequest: { req async throws in
+            try req.content.encode([
+                "name": "1",
+                "email": faker.internet.safeEmail(),
+                "password": faker.internet.password(minimumLength: 8, maximumLength: 32)
+            ])
+        }, afterResponse: { res async throws in
+            XCTAssertEqual(res.status, .badRequest)
+
+            let response = try res.content.decode(ErrorFromCreateManagerApi.self)
+            XCTAssertEqual(response.reason, "name is less than minimum of 3 character(s)")
+            XCTAssertTrue(response.error)
+
+            let managersCount = try await Manager.query(on: app.db).count()
+            XCTAssertEqual(0, managersCount)
+        })
+    }
+
+    func testCreateManager_nameIsGreaterThanOneHundredCharacters_notSavedToDatabase() async throws {
+        try await app.test(.POST, "/api/managers", beforeRequest: { req async throws in
+            try req.content.encode([
+                "name": faker.lorem.words(amount: 101),
+                "email": faker.internet.safeEmail(),
+                "password": faker.internet.password(minimumLength: 8, maximumLength: 32)
+            ])
+        }, afterResponse: { res async throws in
+            XCTAssertEqual(res.status, .badRequest)
+
+            let response = try res.content.decode(ErrorFromCreateManagerApi.self)
+            XCTAssertEqual(response.reason, "name is greater than maximum of 100 character(s)")
+            XCTAssertTrue(response.error)
+
+            let managersCount = try await Manager.query(on: app.db).count()
+            XCTAssertEqual(managersCount, 0)
+        })
+    }
+}
+
+struct ErrorFromCreateManagerApi: Content {
+    var reason: String
+    var error: Bool
 }

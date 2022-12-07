@@ -7,9 +7,9 @@ struct ManagersController: RouteCollection {
         managersRoutes.post(use: createHandler)
     }
 
-    func createHandler(_ req: Request) async throws -> Manager {
-        try Manager.validate(content: req)
-        let data = try req.content.decode(Manager.self)
+    func createHandler(_ req: Request) async throws -> ManagerDataFromCreateHandler {
+        try CreateManagerFromApi.validate(content: req)
+        let data = try req.content.decode(CreateManagerFromApi.self)
         
         if try await Manager.isEmailUnique(data.email, on: req.db) {
             throw Abort(.badRequest, reason: "Manager with this '\(data.email)' Email-Address already taken.")
@@ -22,6 +22,6 @@ struct ManagersController: RouteCollection {
         manager.password = digest
         try await manager.save(on: req.db)
 
-        return manager
+        return ManagerDataFromCreateHandler(name: manager.name, email: manager.email)
     }
 }
