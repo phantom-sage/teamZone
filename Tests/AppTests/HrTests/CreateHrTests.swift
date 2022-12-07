@@ -188,4 +188,92 @@ final class CreateHrTests: XCTestCase {
             XCTAssertNotEqual(hrFromDatabase.password, "password")
         })
     }
+
+    func testCreateHr_nameLessThanThreeCharacters_notSavedToDatabase() async throws {
+        try await app.test(.POST, "/api/hrs", beforeRequest: { req async throws in
+            try req.content.encode([
+                "name": "1",
+                "email": faker.internet.safeEmail(),
+                "password": faker.internet.password(minimumLength: 8, maximumLength: 32)
+            ])
+        }, afterResponse: { res async throws in
+            XCTAssertEqual(res.status, .badRequest)
+
+            let response = try res.content.decode(ErrorFromCreateHrApi.self)
+            XCTAssertEqual(response.reason, "name is less than minimum of 3 character(s)")
+            XCTAssertTrue(response.error)
+        })
+    }
+
+    func testCreateHr_nameGreaterThanOneHundredCharacters_notSavedToDatabase() async throws {
+        try await app.test(.POST, "/api/hrs", beforeRequest: { req async throws in
+            try req.content.encode([
+                "name": faker.lorem.words(amount: 101),
+                "email": faker.internet.safeEmail(),
+                "password": faker.internet.password(minimumLength: 8, maximumLength: 32)
+            ])
+        }, afterResponse: { res async throws in
+            XCTAssertEqual(res.status, .badRequest)
+
+            let response = try res.content.decode(ErrorFromCreateHrApi.self)
+            XCTAssertEqual("name is greater than maximum of 100 character(s)", response.reason)
+            XCTAssertTrue(response.error)
+        })
+    }
+
+    func testCreateHr_emailIsInvalidEmailAddress_notSavedToDatabase() async throws {
+        try await app.test(.POST, "/api/hrs", beforeRequest: { req async throws in
+            try req.content.encode([
+                "name": faker.name.name(),
+                "email": "invalid",
+                "password": faker.internet.password(minimumLength: 8, maximumLength: 32)
+            ])
+        }, afterResponse: { res async throws in
+            XCTAssertEqual(res.status, .badRequest)
+
+            let response = try res.content.decode(ErrorFromCreateHrApi.self)
+            XCTAssertEqual(response.reason, "email is not a valid email address")
+            XCTAssertTrue(response.error)
+        })
+    }
+
+    func testCreateHr_passwordLessThanEightCharacters_notSavedToDatabase() async throws {
+        try await app.test(.POST, "/api/hrs", beforeRequest: { req async throws in
+            try req.content.encode([
+                "name": faker.name.name(),
+                "email": faker.internet.safeEmail(),
+                "password": "0123456"
+            ])
+        }, afterResponse: { res async throws in
+            XCTAssertEqual(res.status, .badRequest)
+
+            let response = try res.content.decode(ErrorFromCreateHrApi.self)
+            XCTAssertEqual(response.reason, "password is less than minimum of 8 character(s)")
+            XCTAssertTrue(response.error)
+
+            let hrsCount = try await Hr.query(on: app.db).count()
+            XCTAssertEqual(0, hrsCount)
+        })
+    }
+
+    func testCreateHr_passwordGreaterThanThirtyTwoCharacters_notSavedToDatabase() async throws {
+        try await app.test(.POST, "/api/hrs", beforeRequest: { req async throws in
+            try req.content.encode([
+                "name": faker.name.name(),
+                "email": faker.internet.safeEmail(),
+                "password": faker.lorem.words(amount: 33)
+            ])
+        }, afterResponse: { res async throws in
+            XCTAssertEqual(res.status, .badRequest)
+
+            let response = try res.content.decode(ErrorFromCreateHrApi.self)
+            XCTAssertEqual(response.reason, "password is greater than maximum of 32 character(s)")
+            XCTAssertTrue(response.error)
+        })
+    }
+}
+
+struct ErrorFromCreateHrApi: Content {
+    var reason: String
+    var error: Bool
 }
