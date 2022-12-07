@@ -11,6 +11,7 @@ struct CreateTask: AsyncMigration {
         .field("name", .string, .required)
         .field("status", .string, .required)
         .field("duration", .datetime, .required)
+        .field("project_id", .uuid, .required, .references("projects", "id"))
         .create()
     }
 

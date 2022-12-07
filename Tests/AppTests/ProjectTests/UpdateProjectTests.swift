@@ -7,11 +7,11 @@ final class UpdateProjectTests: XCTestCase {
     private var faker: Faker!
     private let dateAsString = "2022-12-31 14:29:00"
 
-    override func setUpWithError() throws {
+    override func setUp() async throws {
         app = Application(.testing)
         try configure(app)
-        try app.autoRevert().wait()
-        try app.autoMigrate().wait()
+        try await app.autoRevert()
+        try await app.autoMigrate()
         faker = Faker(locale: "en")
     }
 

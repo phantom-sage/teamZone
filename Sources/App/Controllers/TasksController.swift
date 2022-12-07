@@ -18,17 +18,21 @@ struct TasksController: RouteCollection {
 
 
         let taskData = try req.content.decode(TaskDataFromCreateHandler.self, using: decoder)
+        guard let _ = try await Project.find(taskData.projectId, on: req.db) else {
+            throw Abort(.notFound, reason: "Project with this id: \(taskData.projectId) not exists.")
+        }
         let task = Task()
-
         task.name = taskData.name
         task.status = taskData.status
         task.duration = taskData.duration
+        task.$project.id = taskData.projectId
         try await task.save(on: req.db)
 
         return TaskDataFromCreateHandler(
             name: task.name,
             status: task.status,
-            duration: task.duration
+            duration: task.duration,
+            projectId: taskData.projectId
         )
     }
 }

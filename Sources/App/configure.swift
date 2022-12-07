@@ -25,10 +25,10 @@ public func configure(_ app: Application) throws {
             ), as: .psql)
     }
 
+    app.migrations.add(CreateProject())
     app.migrations.add(CreateClient())
     app.migrations.add(CreateManager())
     app.migrations.add(CreateHr())
-    app.migrations.add(CreateProject())
     app.migrations.add(CreateTeamMember())
     app.migrations.add(CreateTask())
 

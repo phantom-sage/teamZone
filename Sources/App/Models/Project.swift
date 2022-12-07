@@ -14,6 +14,9 @@ final class Project: Model, Content {
     @Field(key: "deadline")
     var deadline: Date
 
+    @Children(for: \.$project)
+    var tasks: [Task]
+
     init() { }
 
     init(id: UUID? = nil, deadline: Date) {

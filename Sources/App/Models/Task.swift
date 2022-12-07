@@ -15,22 +15,31 @@ final class Task: Model {
     @Field(key: "duration")
     var duration: Date
 
+    @Parent(key: "project_id")
+    var project: Project
+
     init() { }
 
     init(
         id: UUID? = nil,
         name: String,
         status: TaskStatus,
-        duration: Date
+        duration: Date,
+        projectId: Project.IDValue
     ) {
         self.id = id
         self.name = name
         self.status = status
         self.duration = duration
+        self.$project.id = projectId
     }
 }
 
-enum TaskStatus: String, Codable {
+enum TaskStatus: String, Codable, CustomStringConvertible {
+    var description: String {
+        get { "TaskStatus" }
+    }
+
     case inProgress
     case failed
     case completed

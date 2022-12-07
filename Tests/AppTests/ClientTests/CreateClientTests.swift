@@ -12,11 +12,11 @@ final class CreateClientTests: XCTestCase {
     var app: Application!
     var faker: Faker!
 
-    override func setUpWithError() throws {
+    override func setUp() async throws {
         app = Application(.testing)
         try configure(app)
-        try app.autoRevert().wait()
-        try app.autoMigrate().wait()
+        try await app.autoRevert()
+        try await app.autoMigrate()
         faker = Faker(locale: "en")
     }
 
