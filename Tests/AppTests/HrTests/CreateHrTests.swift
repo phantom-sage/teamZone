@@ -271,6 +271,21 @@ final class CreateHrTests: XCTestCase {
             XCTAssertTrue(response.error)
         })
     }
+
+    func testCreateHr_emptyRequestBody_notSavedToDatabase() async throws {
+        try await app.test(.POST, "/api/hrs", beforeRequest: { req async throws in
+            try req.content.encode("".self)
+        }, afterResponse: { res async throws in
+            XCTAssertEqual(res.status, .unprocessableEntity)
+
+            let response = try res.content.decode(ErrorFromCreateHrApi.self)
+            XCTAssertEqual(response.reason, "Empty Body")
+            XCTAssertTrue(response.error)
+
+            let hrsCount = try await Hr.query(on: app.db).count()
+            XCTAssertEqual(0, hrsCount)
+        })
+    }
 }
 
 struct ErrorFromCreateHrApi: Content {
