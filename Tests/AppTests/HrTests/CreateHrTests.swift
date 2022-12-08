@@ -5,6 +5,7 @@ import Fakery
 final class CreateHrTests: XCTestCase {
     var app: Application!
     var faker: Faker!
+    var responseFromManagerLoginApi: ManagerLoginDataFromApi!
 
     override func setUp() async throws {
         app = Application(.testing)
@@ -12,6 +13,26 @@ final class CreateHrTests: XCTestCase {
         try await app.autoRevert()
         try await app.autoMigrate()
         faker = Faker(locale: "en")
+
+        try await Manager.createManager(on: app.db)
+        guard let manager = try await Manager.query(on: app.db).first() else { return }
+
+        try await app.test(.POST, "/api/managers/login", beforeRequest: { req async throws in
+            try req.content.encode([
+                "email": manager.email,
+                "password": manager.password
+            ])
+        }, afterResponse: { res async throws in
+            XCTAssertEqual(res.status, .ok)
+            
+            let response = try res.content.decode(ManagerLoginDataFromApi.self)
+            XCTAssertFalse(response.token.isEmpty)
+
+            let managersCount = try await Manager.query(on: app.db).count()
+            XCTAssertEqual(managersCount, 1)
+
+            responseFromManagerLoginApi = response
+        })
     }
 
     override func tearDownWithError() throws {
@@ -20,6 +41,7 @@ final class CreateHrTests: XCTestCase {
 
     func testCreateHr_withAllFields_savedToDatabase() async throws {
         try await app.test(.POST, "/api/hrs", beforeRequest: { req async throws in
+            req.headers.add(name: .authorization, value: "Bearer \(responseFromManagerLoginApi.token)")
             try req.content.encode([
                 "name": faker.name.name(),
                 "email": faker.internet.email(),
@@ -37,6 +59,7 @@ final class CreateHrTests: XCTestCase {
 
     func testCreateHr_emailIsRequired_savedToDatabase() async throws {
         try await app.test(.POST, "/api/hrs", beforeRequest: { req async throws in
+            req.headers.add(name: .authorization, value: "Bearer \(responseFromManagerLoginApi.token)")
             try req.content.encode([
                 "name": faker.name.name(),
                 "email": faker.internet.safeEmail(),
@@ -54,6 +77,7 @@ final class CreateHrTests: XCTestCase {
 
     func testCreateHr_emailIsValid_savedToDatabase() async throws {
         try await app.test(.POST, "/api/hrs", beforeRequest: { req async throws in
+            req.headers.add(name: .authorization, value: "Bearer \(responseFromManagerLoginApi.token)")
             try req.content.encode([
                 "name": faker.name.name(),
                 "email": faker.internet.safeEmail(),
@@ -71,6 +95,7 @@ final class CreateHrTests: XCTestCase {
 
     func testCreateHr_nameIsNotLessThanThreeCharacters_savedToDatabase() async throws {
         try await app.test(.POST, "/api/hrs", beforeRequest: { req async throws in
+            req.headers.add(name: .authorization, value: "Bearer \(responseFromManagerLoginApi.token)")
             try req.content.encode([
                 "name": faker.name.name(),
                 "email": faker.internet.safeEmail(),
@@ -88,6 +113,7 @@ final class CreateHrTests: XCTestCase {
 
     func testCreateHr_nameIsNotGreaterThanOneHundredCharacters_savedToDatabase() async throws {
         try await app.test(.POST, "/api/hrs", beforeRequest: { req async throws in
+            req.headers.add(name: .authorization, value: "Bearer \(responseFromManagerLoginApi.token)")
             try req.content.encode([
                 "name": faker.name.name(),
                 "email": faker.internet.safeEmail(),
@@ -105,6 +131,7 @@ final class CreateHrTests: XCTestCase {
 
     func testCreateHr_nameIsRequired_savedToDatabase() async throws {
         try await app.test(.POST, "/api/hrs", beforeRequest: { req async throws in
+            req.headers.add(name: .authorization, value: "Bearer \(responseFromManagerLoginApi.token)")
             try req.content.encode([
                 "name": faker.name.name(),
                 "email": faker.internet.safeEmail(),
@@ -122,6 +149,7 @@ final class CreateHrTests: XCTestCase {
 
     func testCreateHr_passwordIsRequired_savedToDatabase() async throws {
         try await app.test(.POST, "/api/hrs", beforeRequest: { req async throws in
+            req.headers.add(name: .authorization, value: "Bearer \(responseFromManagerLoginApi.token)")
             try req.content.encode([
                 "name": faker.name.name(),
                 "email": faker.internet.safeEmail(),
@@ -139,6 +167,7 @@ final class CreateHrTests: XCTestCase {
 
     func testCreateHr_passwordNotLessThanEightCharacters_savedToDatabase() async throws {
         try await app.test(.POST, "/api/hrs", beforeRequest: { req async throws in
+            req.headers.add(name: .authorization, value: "Bearer \(responseFromManagerLoginApi.token)")
             try req.content.encode([
                 "name": faker.name.name(),
                 "email": faker.internet.safeEmail(),
@@ -156,6 +185,7 @@ final class CreateHrTests: XCTestCase {
 
     func testCreateHr_passwordNotGreaterThanThirtyTwoCharacters_savedtoDatabase() async throws {
         try await app.test(.POST, "/api/hrs", beforeRequest: { req async throws in
+            req.headers.add(name: .authorization, value: "Bearer \(responseFromManagerLoginApi.token)")
             try req.content.encode([
                 "name": faker.name.name(),
                 "email": faker.internet.safeEmail(),
@@ -173,6 +203,7 @@ final class CreateHrTests: XCTestCase {
 
     func testCreateHr_passwordIsHashed_savedToDatabase() async throws {
         try await app.test(.POST, "/api/hrs", beforeRequest: { req async throws in
+            req.headers.add(name: .authorization, value: "Bearer \(responseFromManagerLoginApi.token)")
             try req.content.encode([
                 "name": faker.name.name(),
                 "email": faker.internet.safeEmail(),
@@ -191,6 +222,7 @@ final class CreateHrTests: XCTestCase {
 
     func testCreateHr_nameLessThanThreeCharacters_notSavedToDatabase() async throws {
         try await app.test(.POST, "/api/hrs", beforeRequest: { req async throws in
+            req.headers.add(name: .authorization, value: "Bearer \(responseFromManagerLoginApi.token)")
             try req.content.encode([
                 "name": "1",
                 "email": faker.internet.safeEmail(),
@@ -207,6 +239,7 @@ final class CreateHrTests: XCTestCase {
 
     func testCreateHr_nameGreaterThanOneHundredCharacters_notSavedToDatabase() async throws {
         try await app.test(.POST, "/api/hrs", beforeRequest: { req async throws in
+            req.headers.add(name: .authorization, value: "Bearer \(responseFromManagerLoginApi.token)")
             try req.content.encode([
                 "name": faker.lorem.words(amount: 101),
                 "email": faker.internet.safeEmail(),
@@ -223,6 +256,7 @@ final class CreateHrTests: XCTestCase {
 
     func testCreateHr_emailIsInvalidEmailAddress_notSavedToDatabase() async throws {
         try await app.test(.POST, "/api/hrs", beforeRequest: { req async throws in
+            req.headers.add(name: .authorization, value: "Bearer \(responseFromManagerLoginApi.token)")
             try req.content.encode([
                 "name": faker.name.name(),
                 "email": "invalid",
@@ -239,6 +273,7 @@ final class CreateHrTests: XCTestCase {
 
     func testCreateHr_passwordLessThanEightCharacters_notSavedToDatabase() async throws {
         try await app.test(.POST, "/api/hrs", beforeRequest: { req async throws in
+            req.headers.add(name: .authorization, value: "Bearer \(responseFromManagerLoginApi.token)")
             try req.content.encode([
                 "name": faker.name.name(),
                 "email": faker.internet.safeEmail(),
@@ -258,6 +293,7 @@ final class CreateHrTests: XCTestCase {
 
     func testCreateHr_passwordGreaterThanThirtyTwoCharacters_notSavedToDatabase() async throws {
         try await app.test(.POST, "/api/hrs", beforeRequest: { req async throws in
+            req.headers.add(name: .authorization, value: "Bearer \(responseFromManagerLoginApi.token)")
             try req.content.encode([
                 "name": faker.name.name(),
                 "email": faker.internet.safeEmail(),
@@ -274,6 +310,7 @@ final class CreateHrTests: XCTestCase {
 
     func testCreateHr_emptyRequestBody_notSavedToDatabase() async throws {
         try await app.test(.POST, "/api/hrs", beforeRequest: { req async throws in
+            req.headers.add(name: .authorization, value: "Bearer \(responseFromManagerLoginApi.token)")
             try req.content.encode("".self)
         }, afterResponse: { res async throws in
             XCTAssertEqual(res.status, .unprocessableEntity)

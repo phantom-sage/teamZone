@@ -3,7 +3,7 @@ import Fluent
 
 struct HrsController: RouteCollection {
     func boot(routes: Vapor.RoutesBuilder) throws {
-        let hrsRoutes = routes.grouped("api", "hrs")
+        let hrsRoutes = routes.grouped("api", "hrs").grouped(VerifyManagerJWTTokenMiddleware())
         hrsRoutes.post(use: createHandler)
         hrsRoutes.put(":hrId", use: updateHandler)
         hrsRoutes.delete(":hrId", use: deleteHandler)
