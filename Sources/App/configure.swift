@@ -5,6 +5,7 @@ import Leaf
 import Vapor
 import GraphQL
 import GraphQLKit
+import JWT
 
 // configures your application
 public func configure(_ app: Application) throws {
@@ -15,6 +16,7 @@ public func configure(_ app: Application) throws {
         case .testing:
             app.databases.use(.sqlite(.memory), as: .sqlite)
             try app.autoMigrate().wait()
+            app.passwords.use(.plaintext)
         default:
             app.databases.use(.postgres(
                 hostname: Environment.get("DATABASE_HOST") ?? "localhost",
@@ -40,4 +42,6 @@ public func configure(_ app: Application) throws {
     try routes(app)
 
     app.register(graphQLSchema: projectSchema, withResolver:  ProjectResolver())
+
+    app.jwt.signers.use(.hs512(key: "secret"))
 }

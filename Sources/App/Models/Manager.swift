@@ -1,5 +1,6 @@
 import Fluent
 import Vapor
+import Fakery
 
 final class Manager: Model, Content {
     static var schema: String = "managers"
@@ -32,5 +33,16 @@ extension Manager {
             return false
         }
         return true
+    }
+}
+
+extension Manager {
+    static func createManager(on database: Database) async throws {
+        let faker = Faker(locale: "en")
+        let manager = Manager()
+        manager.name = faker.name.name()
+        manager.email = faker.internet.safeEmail()
+        manager.password = faker.internet.password(minimumLength: 8, maximumLength: 32)
+        try await manager.save(on: database)
     }
 }

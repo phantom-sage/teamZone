@@ -179,7 +179,7 @@ final class CreateTaskTests: XCTestCase {
             XCTAssertEqual(res.status, .badRequest)
 
             let response = try res.content.decode(ErrorFromCreateTaskApi.self)
-            XCTAssertEqual(response.reason, "Allowed values for TaskStatus: (completed, failed, inProgress).")
+            XCTAssertEqual(response.reason, "status is not completed, failed, or inProgress")
             XCTAssertTrue(response.error)
         })
     }

@@ -10,10 +10,11 @@ struct TaskDataFromCreateHandler: Content, Validatable {
         validations.add("name", as: String.self, is: .ascii && !.empty && .count(3...150), required: true)
         validations.add(
             "status",
-            as: TaskStatus.self,
-            is: .in(TaskStatus.completed, TaskStatus.failed, TaskStatus.inProgress),
-            required: true,
-            customFailureDescription: "Allowed values for TaskStatus: (completed, failed, inProgress)."
+            as: String.self,
+            is: .in(TaskStatus.completed.rawValue, TaskStatus.failed.rawValue, TaskStatus.inProgress.rawValue),
+            required: true
         )
     }
 }
+
+//customFailureDescription: "Allowed values for TaskStatus: (completed, failed, inProgress)."
