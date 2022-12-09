@@ -4,6 +4,7 @@ import Fluent
 struct ProjectsController: RouteCollection {
     func boot(routes: Vapor.RoutesBuilder) throws {
         let projectsRoutes = routes.grouped("api", "projects")
+        .grouped(VerifyManagerJWTTokenMiddleware())
         projectsRoutes.post(use: createHandler)
         projectsRoutes.put(":projectId", use: updateHandler)
         projectsRoutes.delete(":projectId", use: deleteHandler)
