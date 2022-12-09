@@ -7,6 +7,8 @@ struct HrsController: RouteCollection {
         hrsRoutes.post(use: createHandler)
         hrsRoutes.put(":hrId", use: updateHandler)
         hrsRoutes.delete(":hrId", use: deleteHandler)
+
+        routes.post("api", "hrs", "login", use: loginHandler)
     }
 
     func createHandler(_ req: Request) async throws -> HrResponse {
@@ -42,6 +44,24 @@ struct HrsController: RouteCollection {
         try await hr.delete(on: req.db)
         return .noContent
     }
+
+    func loginHandler(_ req: Request) async throws -> [String: String] {
+        let hrData = try req.content.decode(LoginHrData.self)
+        guard let hr = try await Hr.query(on: req.db).filter(\.$email == hrData.email).first() else {
+            throw Abort(.notFound)
+        }
+
+        let passwordIsCorrect = try await req.password.async.verify(hrData.password, created: hr.password)
+        if !passwordIsCorrect {
+            throw Abort(.notFound)
+        }
+
+        let payload = ManagerLoginJWT(subject: "hrLogin", expiration: .init(value: .distantFuture))
+        let token = try req.jwt.sign(payload)
+        return [
+            "token": token
+        ]
+    }
 }
 
 struct UpdateHrDataFromApi: Content, Validatable {
@@ -64,6 +84,11 @@ struct CreateHrDataFromApi: Content, Validatable {
         validations.add("name", as: String.self, is: .ascii && !.empty && .count(3...100), required: true)
         validations.add("password", as: String.self, is: .ascii && !.empty && .count(8...32), required: true)
     }
+}
+
+struct LoginHrData: Content {
+    var email: String
+    var password: String
 }
 
 struct HrResponse: Content {
